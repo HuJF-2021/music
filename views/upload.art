@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>音乐上传-听歌识曲</title>
+	<link rel="stylesheet" href="./css/bootstrap.css">
+	<script src="/javascripts/jquery.min.js"></script>
+	<style>
+		.showInfo{
+			display:block;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1 class=" display-3 py-3">音乐上传</h1>
+		<hr>
+		<!-- 表单结构： -->
+		<form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="source">资源文件（<small>限定mp3格式，可自动识别指定格式的歌手和歌曲名字，例如：<mark>周杰伦 - 彩虹.mp3</mark></small>）</label>
+				<!-- accept 用于设置可以接受的文件类型，可以使用MIMEtype,也可以使用后缀名，使用逗号连接 -->
+				<input type="file" class="form-control" id="source" name="source" accept=".mp3">
+				<small class="invalid-feedback ">文件上传</small>
+			</div>
+			<div class="form-group">
+				<label for="geshou">歌手</label>
+				<input type="text" class="form-control" id="singer" name="singer" placeholder="请输入歌手">
+				<small class="invalid-feedback ">歌手的名称</small>
+			</div>
+			<div class="form-group">
+				<label for="zhuanji">歌名</label>
+				<input type="text" class="form-control" id="songname" name="songname" placeholder="请输入歌曲名字">
+				<small class="invalid-feedback ">歌曲名称</small>
+			</div>
+			
+			<button class="btn btn-primary btn-block">上传</button>
+		</form>
+	</div>
+	<script>
+		$('#source').change(function(){
+			var songerFilem=this.files[0].name;
+			console.log(songerFilem);
+			if (songerFilem.includes('-')&&songerFilem.includes('.mp3')) {
+				var singer=songerFilem.split('-')[0].trim();
+				var songname=songerFilem.split('-')[1].slice(0,-4).trim();
+				console.log(singer+"===="+songname);
+				$('#singer').val(singer);
+				$('#songname').val(songname);
+			}
+		});
+		$('#uploadForm').on('submit',function(){
+			if ($('#singer').val().trim().length==0) {
+				alert("歌手名字不能为空");
+				return false;
+			}
+			if ($('#songname').val().trim().length==0) {
+				alert("歌曲名称不能为空");
+					return false;
+			}
+		})
+
+	</script>
+
+		
+</body>
+</html>

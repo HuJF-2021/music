@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>音乐列表-听歌识曲</title>
+	<link rel="stylesheet" href="./css/bootstrap.css">
+	<script src="/javascripts/jquery.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<h1 class="text-center display-3 py-3">听歌识曲</h1>
+		<hr>
+		<a href="/users" class="btn btn-dark">新增歌曲信息</a>
+		<a href="/history" class="btn btn-dark">历史记录</a>
+		<a href="/" class="btn btn-dark">全部随机</a>
+		<a href="/latestrandom" class="btn btn-dark">最新随机</a>
+		<table class="table table-bordered">
+			<thead class="thead-inverse">
+				<tr>
+					<th>序号</th>
+					<th>歌手</th>
+					<th>歌名</th>
+					<th>音乐</th>
+					<th>更新日期</th>
+					<th>状态</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="songBox">
+				{{each result}}
+                <tr class="{{$value.isshow == '0' ? 'bg-success': ''}}">
+                    <td >{{$index+1}}</td>
+                    <td data-singer={{$value.singer}}>***</td>
+                    <td data-songname={{$value.songname}}>***</td>
+					<td><audio src="/music/{{$value.filename}}" controls></audio></td>
+					<td>{{dateformat($value.addtime,'yyyy-mm-dd')}}</td>
+					<td>{{$value.isshow == '1' ? '开启': '屏蔽'}}</td>
+                    <td>
+                        <a href="javascript:;" class="btn btn-primary" id="show">查看答案</a>
+                        <a href="javascript:;" class="btn btn-warning" id="ban" data-statues="{{$value.isshow}}" data-id="{{@$value._id}}" >{{$value.isshow=='1'?'屏蔽':'开启'}}</a>
+                        <a href="javascript:;" class="btn btn-danger delete"  data-id="{{@$value._id}}" id="delet">删除</a>
+                    </td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+	<script>
+    $('#songBox').on('click','#show',function(){
+    	//this指的是a标签，parent返回的是td父元素，siblings返回的是所有td
+     var $singer=$(this).parent().siblings().eq(1);
+     $singer.text(($singer.text()=="***")?$singer.attr('data-singer'):'***');
+      var $songname=$(this).parent().siblings().eq(2);
+     $songname.text(($songname.text()=="***")?$songname.attr('data-songname'):'***');
+    });
+    $('#songBox').on('click','#ban',function(){
+    	console.log("屏蔽已经启动");
+
+    	var statues=$(this).attr('data-statues')=='1'?'0':'1';
+    	$.ajax({
+    		type:"get",
+    		url:'/ban',
+    		data:{id:$(this).attr('data-id'),statues:statues},
+    		success:(res)=>{
+    			console.log(res);
+
+    			$(this).attr('data-statues',res.isshow);
+    			$(this).parent().prev().text(statues=='1'?'开启':'屏蔽');
+    			$(this).text(statues=='1'?'屏蔽':'开启');
+    			if (statues=='1') {
+                       $(this).parent().parent().removeClass('bg-success');  
+    			}else{
+    				$(this).parent().parent().addClass('bg-success');
+    			}
+
+    		}
+    	})
+    });
+    $('#songBox').on('click','#delet',function(){
+    	
+    	var textse=$(this).parent().siblings().eq(0).val();
+    	console.log("删除启动");
+    	if (confirm("你确定要删除这条歌曲？")) {
+    		$.ajax({
+    			type:"get",
+    			url:'/delete',
+    			data:{id:$(this).attr('data-id')},
+    			success:(res)=>{
+              $(this).parent().parent().remove();
+              
+    			}
+    		})
+    	}
+    })
+
+
+		</script>
+</body>
+
+
+</html>
